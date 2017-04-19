@@ -66,5 +66,45 @@ public class TestModel {
         assertTrue(model.getMinValue() == model.getUserValue());
     }
 
+    @Test
+    public void testGameUsingEnumSrc(){
+        Model model = new Model();
+        final int EXPECTED_FAILED_VALUES_CNT = 9;
+        int actualFailedValuesCnt = 0;
+        TestValues[] testValues = TestValues.values();
+        model.setRandomValue(TestValues.SUCCESSFUL_TRY.getValue());
+        for(TestValues tv : testValues){
+            model.setUserValue(tv.getValue());
+            model.searchProcess();
+            if(!model.isComplete()){
+                actualFailedValuesCnt++;
+            }
+        }
+        assertTrue((EXPECTED_FAILED_VALUES_CNT == actualFailedValuesCnt) &&
+                    model.isComplete());
+    }
+
+    @Test
+    public void testBarrierChangingUsingEnumSrc(){
+        int previousMinBarrier = 0;
+        int previousMaxBarrier = 100;
+        Model model = new Model();
+        TestValues[] testValues = TestValues.values();
+        model.setRandomValue(TestValues.SUCCESSFUL_TRY.getValue());
+        for(int i = 0; i <= testValues.length-2; i++){
+            model.setUserValue(testValues[i].getValue());
+            model.searchProcess();
+            if(model.getRandomValue() > testValues[i].getValue()){
+                assertTrue(model.getMinValue() == testValues[i].getValue() &&
+                        model.getMaxValue() == previousMaxBarrier);
+                previousMinBarrier = model.getMinValue();
+            }else{
+                assertTrue(model.getMaxValue() == testValues[i].getValue() &&
+                        model.getMinValue() == previousMinBarrier);
+                previousMaxBarrier = model.getMaxValue();
+            }
+        }
+    }
+
 
 }
